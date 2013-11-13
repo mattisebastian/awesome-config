@@ -1,5 +1,3 @@
--- include vicious widget library
-vicious = require("vicious")
 -- Standard awesome library
 local gears = require("gears")
 local awful = require("awful")
@@ -12,10 +10,6 @@ local beautiful = require("beautiful")
 -- Notification library
 local naughty = require("naughty")
 local menubar = require("menubar")
-
-obviouscpu = require("obvious.cpu")
-
---welcome message:
 
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
@@ -44,34 +38,12 @@ end
 
 -- {{{ Variable definitions
 -- Themes define colours, icons, and wallpapers
-beautiful.init("/usr/share/awesome/themes/zenburn/theme.lua")
+beautiful.init("/usr/share/awesome/themes/default/theme.lua")
 
 -- This is used later as the default terminal and editor to run.
-terminal = "terminator"
-editor = "medit"
-editor_cmd = terminal .. editor
-
-font = "Inconsolata 11"
-
--- {{ These are the power arrow dividers/separators }} --
-arr1 = wibox.widget.imagebox()
-arr1:set_image(awful.util.getdir("config") .. "/icons/powerarrow/arr1.png")
-arr2 = wibox.widget.imagebox()
-arr2:set_image(awful.util.getdir("config") .. "/icons/powerarrow/arr2.png")
-arr3 = wibox.widget.imagebox()
-arr3:set_image(awful.util.getdir("config") .. "/icons/powerarrow/arr3.png")
-arr4 = wibox.widget.imagebox()
-arr4:set_image(awful.util.getdir("config") .. "/icons/powerarrow/arr4.png")
-arr5 = wibox.widget.imagebox()
-arr5:set_image(awful.util.getdir("config") .. "/icons/powerarrow/arr5.png")
-arr6 = wibox.widget.imagebox()
-arr6:set_image(awful.util.getdir("config") .. "/icons/powerarrow/arr6.png")
-arr7 = wibox.widget.imagebox()
-arr7:set_image(awful.util.getdir("config") .. "/icons/powerarrow/arr7.png")
-arr8 = wibox.widget.imagebox()
-arr8:set_image(awful.util.getdir("config") .. "/icons/powerarrow/arr8.png")
-arr9 = wibox.widget.imagebox()
-arr9:set_image(awful.util.getdir("config") .. "/icons/powerarrow/arr9.png")
+terminal = "xterm"
+editor = os.getenv("EDITOR") or "nano"
+editor_cmd = terminal .. " -e " .. editor
 
 -- Default modkey.
 -- Usually, Mod4 is the key with a logo between Control and Alt.
@@ -79,7 +51,6 @@ arr9:set_image(awful.util.getdir("config") .. "/icons/powerarrow/arr9.png")
 -- I suggest you to remap Mod4 to another key using xmodmap or other tools.
 -- However, you can use another modifier like Mod1, but it may interact with others.
 modkey = "Mod4"
-alt = "Mod1"
 
 -- Table of layouts to cover with awful.layout.inc, order matters.
 local layouts =
@@ -107,24 +78,20 @@ if beautiful.wallpaper then
 end
 -- }}}
 
- -- {{{ Tags
- -- Define a tag table which will hold all screen tags.
- tags = {
-   names  = { "[main]", "[workspace]","[web]", "[shell]", "[uni]", "[mail]", "[skype]"},
-   layout = { layouts[2], layouts[2], layouts[2], layouts[5], layouts[6],
-              layouts[12], layouts[9], layouts[3], layouts[7]
- }}
- for s = 1, screen.count() do
-     -- Each screen has its own tag table.
-     tags[s] = awful.tag(tags.names, s, tags.layout)
- end
- -- }}}
+-- {{{ Tags
+-- Define a tag table which hold all screen tags.
+tags = {}
+for s = 1, screen.count() do
+    -- Each screen has its own tag table.
+    tags[s] = awful.tag({ 1, 2, 3, 4, 5, 6, 7, 8, 9 }, s, layouts[1])
+end
+-- }}}
 
 -- {{{ Menu
 -- Create a laucher widget and a main menu
 myawesomemenu = {
    { "manual", terminal .. " -e man awesome" },
-   { "edit config", terminal .. editor  },
+   { "edit config", editor_cmd .. " " .. awesome.conffile },
    { "restart", awesome.restart },
    { "quit", awesome.quit }
 }
@@ -142,121 +109,9 @@ menubar.utils.terminal = terminal -- Set the terminal for applications that requ
 -- }}}
 
 -- {{{ Wibox
+-- Create a textclock widget
+mytextclock = awful.widget.textclock()
 
-
---{{-- Time and Date Widget }} --
-tdwidget = wibox.widget.textbox()
-vicious.register(tdwidget, vicious.widgets.date, '<span font="Inconsolata 11" color="#EEEEEE" background="#777E76"> %b %d %I:%M</span>', 20)
-
-clockicon = wibox.widget.imagebox()
-clockicon:set_image(awful.util.getdir("config") .. "/icons/powerarrow/myclocknew.png")
-
---{{ Net Widget }} --
-netwidget = wibox.widget.textbox()
-vicious.register(netwidget, vicious.widgets.net, function(widget, args)
-    local interface = ""
-    if args["{wlp1s0 carrier}"] == 1 then
-        interface = "wlp1s0"
-    elseif args["{enp0s25 carrier}"] == 1 then
-        interface = "enp0s25"
-    else
-        return ""
-    end
-    return '<span background="#C2C2A4" font="Inconsolata 11"> <span font ="Inconsolata 11" color="#FFFFFF">'..args["{"..interface.." down_kb}"]..'kbps'..'</span></span>' end, 10)
-
----{{---| Wifi Signal Widget |-------
-neticon = wibox.widget.imagebox()
-vicious.register(neticon, vicious.widgets.wifi, function(widget, args)
-    local sigstrength = tonumber(args["{link}"])
-    if sigstrength > 69 then  right_layout:add(arr5)
-    right_layout:add(fsicon)
-    right_layout:add(fswidget)
-        neticon:set_image(awful.util.getdir("config") .. "/icons/powerarrow/nethigh.png")
-    elseif sigstrength > 40 and sigstrength < 70 then
-        neticon:set_image(awful.util.getdir("config") .. "/icons/powerarrow/netmedium.png")
-    else
-        neticon:set_image(awful.util.getdir("config") .. "/icons/powerarrow/netlow.png")
-    end
-end, 120, 'wlp1s0')
-
---{{---| File Size widget |-----
-fswidget = wibox.widget.textbox()
-
-vicious.register(fswidget, vicious.widgets.fs,
-'<span background="#D0785D" font="Inconsolata 11"> <span font="Inconsolata 11" color="#EEEEEE">${/ used_p}/${/ avail_p} GB </span></span>', 800)
-
-fsicon = wibox.widget.imagebox()
-fsicon:set_image(awful.util.getdir("config") .. "/icons/powerarrow/hdd.png")
-
--- set button event for fs icon press:
-
-fsicon:buttons(awful.util.table.join(awful.button({ }, 1, --probably left mouse button
-function () awful.util.spawn("thunar") end)))
-
-----{{--| Volume / volume icon |----------
-volume = wibox.widget.textbox()
-vicious.register(volume, vicious.widgets.volume,
-'<span background="#4B3B51" font="Inconsolata 11"><span font="Inconsolata 11" color="#EEEEEE"> Vol:$1 </span></span>', 0.3, "Master")
-
-volumeicon = wibox.widget.imagebox()
-vicious.register(volumeicon, vicious.widgets.volume, function(widget, args)
-    local paraone = tonumber(args[1])
-
-    if -- args[2] == "♩" or 
-    paraone == 0 then
-        volumeicon:set_image(awful.util.getdir("config") .. "/icons/powerarrow/volmute.png")
-    elseif paraone >= 67 and paraone <= 100 then
-        volumeicon:set_image(awful.util.getdir("config") .. "/icons/powerarrow/volhi.png")
-    elseif paraone >= 33 and paraone <= 66 then
-        volumeicon:set_image(awful.util.getdir("config") .. "/icons/powerarrow/volmed.png")
-    else
-        volumeicon:set_image(awful.util.getdir("config") .. "/icons/powerarrow/vollow.png")
-    end
-
-end, 0.3, "Master")
-
---{{---| CPU / sensors widget |-----------
-cpuwidget = wibox.widget.textbox()
-vicious.register(cpuwidget, vicious.widgets.cpu,
-'<span background="#4B696D" font="Inconsolata 11"> <span font="Inconsolata 11" color="#DDDDDD">$2%<span color="#888888">·</span>$3% </span></span>', 5)
-
-cpuicon = wibox.widget.imagebox()
-cpuicon:set_image(awful.util.getdir("config") .. "/icons/powerarrow/cpu.png")
- 
---{{ Battery Widget }} --
-baticon = wibox.widget.imagebox()
-baticon:set_image(awful.util.getdir("config") .. "/icons/powerarrow/battery.png")
-
-
-batwidget = wibox.widget.textbox()
-vicious.register( batwidget, vicious.widgets.bat, '<span background="#92B0A0" font="Inconsolata 11"><span font="Inconsolata 11" color="#FFFFFF" background="#92B0A0">$1$2% </span></span>', 30, "BAT1" )
-
-
---{{--| MEM widget |-----------------
-memwidget = wibox.widget.textbox()
-
-vicious.register(memwidget, vicious.widgets.mem, '<span background="#777E76" font="Inconsolata 11"> <span font="Inconsolata 11" color="#EEEEEE" background="#777E76">$2MB </span></span>', 20)
-memicon = wibox.widget.imagebox()
-memicon:set_image(awful.util.getdir("config") .. "/icons/powerarrow/mem.png")
-
---{{--| Mail widget |---------
-mailicon = wibox.widget.imagebox()
-
-vicious.register(mailicon, vicious.widgets.gmail, function(widget, args)
-    local newMail = tonumber(args["{count}"])
-    if newMail > 0 then
-        mailicon:set_image(awful.util.getdir("config") .. "/icons/powerarrow/mail.png")
-    else
-        mailicon:set_image(awful.util.getdir("config") .. "/icons/powerarrow/mailopen.png")
-    end
-end, 15)
-
--- to make GMail pop up when pressed:
-mailicon:buttons(awful.util.table.join(awful.button({ }, 1,
-function () awful.util.spawn("thunderbird") end)))
-
--- }}}
- 
 -- Create a wibox for each screen and add it
 mywibox = {}
 mypromptbox = {}
@@ -323,8 +178,7 @@ for s = 1, screen.count() do
     mytasklist[s] = awful.widget.tasklist(s, awful.widget.tasklist.filter.currenttags, mytasklist.buttons)
 
     -- Create the wibox
-    mywibox[s] = awful.wibox({ position = "top", screen = s, height = "16" })
-
+    mywibox[s] = awful.wibox({ position = "top", screen = s })
 
     -- Widgets that are aligned to the left
     local left_layout = wibox.layout.fixed.horizontal()
@@ -335,33 +189,8 @@ for s = 1, screen.count() do
     -- Widgets that are aligned to the right
     local right_layout = wibox.layout.fixed.horizontal()
     if s == 1 then right_layout:add(wibox.widget.systray()) end
-    right_layout:add(arr9)
-    right_layout:add(mailicon)
-    right_layout:add(arr8)
-    right_layout:add(memicon)
-    right_layout:add(memwidget)
-    right_layout:add(arr7)
-    right_layout:add(cpuicon)
-    right_layout:add(cpuwidget)
-    right_layout:add(arr6)
-    right_layout:add(volumeicon)
-    right_layout:add(volume)
-    right_layout:add(arr5)
-    right_layout:add(fsicon)
-    right_layout:add(fswidget)
-    right_layout:add(arr4)
-    right_layout:add(baticon)
-    right_layout:add(batwidget)
-    right_layout:add(arr3)
-    right_layout:add(neticon)
-    right_layout:add(netwidget)
-    right_layout:add(arr2)
-    right_layout:add(clockicon)
-    right_layout:add(tdwidget)
-    right_layout:add(arr1)
+    right_layout:add(mytextclock)
     right_layout:add(mylayoutbox[s])
-    
-
 
     -- Now bring it all together (with the tasklist in the middle)
     local layout = wibox.layout.align.horizontal()
@@ -405,26 +234,13 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey, "Control" }, "j", function () awful.screen.focus_relative( 1) end),
     awful.key({ modkey, "Control" }, "k", function () awful.screen.focus_relative(-1) end),
     awful.key({ modkey,           }, "u", awful.client.urgent.jumpto),
-   
-   -- Uses Alt+Tab to cycle through windows
-   
-   awful.key({ alt, "Shift"  }, "Tab",
-   function ()
-   -- awful.client.focus.history.previous()
-   awful.client.focus.byidx(-1)
-   if client.focus then
-   client.focus:raise()
-   end
-   end),
-
-   awful.key({ alt,   }, "Tab",
-   function ()
-   -- awful.client.focus.history.previous()
-   awful.client.focus.byidx(1)
-   if client.focus then
-   client.focus:raise()
-   end
-   end),
+    awful.key({ modkey,           }, "Tab",
+        function ()
+            awful.client.focus.history.previous()
+            if client.focus then
+                client.focus:raise()
+            end
+        end),
 
     -- Standard program
     awful.key({ modkey,           }, "Return", function () awful.util.spawn(terminal) end),
@@ -444,7 +260,7 @@ globalkeys = awful.util.table.join(
 
     -- Prompt
     awful.key({ modkey },            "r",     function () mypromptbox[mouse.screen]:run() end),
-	
+
     awful.key({ modkey }, "x",
               function ()
                   awful.prompt.run({ prompt = "Run Lua code: " },
@@ -499,16 +315,20 @@ for i = 1, 9 do
                   end),
         awful.key({ modkey, "Shift" }, "#" .. i + 9,
                   function ()
-                      local tag = awful.tag.gettags(client.focus.screen)[i]
-                      if client.focus and tag then
-                          awful.client.movetotag(tag)
+                      if client.focus then
+                          local tag = awful.tag.gettags(client.focus.screen)[i]
+                          if tag then
+                              awful.client.movetotag(tag)
+                          end
                      end
                   end),
         awful.key({ modkey, "Control", "Shift" }, "#" .. i + 9,
                   function ()
-                      local tag = awful.tag.gettags(client.focus.screen)[i]
-                      if client.focus and tag then
-                          awful.client.toggletag(tag)
+                      if client.focus then
+                          local tag = awful.tag.gettags(client.focus.screen)[i]
+                          if tag then
+                              awful.client.toggletag(tag)
+                          end
                       end
                   end))
 end
@@ -535,21 +355,13 @@ awful.rules.rules = {
       properties = { floating = true } },
     { rule = { class = "pinentry" },
       properties = { floating = true } },
-    { rule = { class = "Gimp" },
+    { rule = { class = "gimp" },
       properties = { floating = true } },
-    --Set Chromium to always map on tags number 2 of screen 1.
-     { rule = { class = "Chromium" },
-       properties = { tag = tags[1][3] } },
-     { rule = { class = "eclipse"},
-       properties = { tag = tags[1][2] } },
-     { rule = { class = "thunar"},
-       properties = { tag = tags[1][1] } },  
-     { rule = { class = "Skype"},
-       properties = { tag = tags[1][7] } },  
-         { rule = { class = "Thunderbird"},
-       properties = { tag = tags[1][6] } }, 
+    -- Set Firefox to always map on tags number 2 of screen 1.
+    -- { rule = { class = "Firefox" },
+    --   properties = { tag = tags[1][2] } },
 }
--- }}}	
+-- }}}
 
 -- {{{ Signals
 -- Signal function to execute when a new client appears.
