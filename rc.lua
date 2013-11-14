@@ -130,11 +130,19 @@ cpuicon = wibox.widget.imagebox()
 cpuicon:set_image(beautiful.widget_cpu)
 
 vicious.register(cpuwidget, vicious.widgets.cpu,
- "<span color='" .. "#999999" .. "'>$1%</span>", 13)
+ "<span color='" .. "#999999" .. "'>CPU:$1% $2%</span>", 5)
+
 -- }}}
 
+-- {{{ Battery
 
--- pacman widget
+batwidget = wibox.widget.textbox() 
+vicious.register(batwidget, vicious.widgets.bat, " Battery: $2% ", 30, "BAT1")
+
+-- }}}
+
+-- {{{ pacman widget
+
 pacwidget =  wibox.widget.textbox()
 pacwidget_t = awful.tooltip({ objects = { pacwidget},})
 
@@ -152,10 +160,19 @@ vicious.register(pacwidget, vicious.widgets.pkg,
                     pacwidget_t:set_text(str)
                   end
                     s:close()
-                    return "UPDATES: " .. args[1]
+                    return "UPDATES: " .. args[1] .. " "
                 end, 1800, "Arch")
 
                 --'1800' means check every 30 minutes
+
+-- }}}
+
+-- {{{
+
+separator =  wibox.widget.textbox()
+separator:set_text(" | ")
+
+-- }}
 
 -- Create a wibox for each screen and add it
 mywibox = {}
@@ -235,10 +252,15 @@ for s = 1, screen.count() do
     local right_layout = wibox.layout.fixed.horizontal()
     if s == 1 then right_layout:add(wibox.widget.systray()) end
     
+    right_layout:add(batwidget)
+    right_layout:add(separator)
     right_layout:add(pacwidget)
+    right_layout:add(separator)
     right_layout:add(cpuwidget)
+    right_layout:add(separator)
     right_layout:add(mytextclock)
     right_layout:add(mylayoutbox[s])
+
 
     -- Now bring it all together (with the tasklist in the middle)
     local layout = wibox.layout.align.horizontal()
