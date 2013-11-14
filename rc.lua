@@ -137,7 +137,14 @@ vicious.register(cpuwidget, vicious.widgets.cpu,
 -- {{{ Battery
 
 batwidget = wibox.widget.textbox() 
-vicious.register(batwidget, vicious.widgets.bat, " Battery: $2% ", 30, "BAT1")
+vicious.register(batwidget, vicious.widgets.bat, 
+-- " Battery: $2% ", 30, "BAT1")
+function(widget, args)
+  bat_state  = args[1]
+  bat_percent = args[2]
+  bat_time   = args[3]
+  return bat_state .." " .. bat_percent .. "% ".. "Est.: " .. bat_time .."h"
+  end, 15, "BAT1")
 
 -- }}}
 
