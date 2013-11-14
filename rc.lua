@@ -7,6 +7,8 @@ require("awful.autofocus")
 local wibox = require("wibox")
 -- Theme handling library
 local beautiful = require("beautiful")
+-- Widget library
+local vicious = require("vicious")
 -- Notification library
 local naughty = require("naughty")
 local menubar = require("menubar")
@@ -80,15 +82,15 @@ end
 
 -- {{{ Tags
 -- Define a tag table which hold all screen tags.
-tags = { 
-  names  = { "[main]", "[workspace]","[web]", "[shell]", "[uni]", "[mail]", "[skype]"},
-  layout = { layouts[2], layouts[2], layouts[2], layouts[5], layouts[6],
-                   layouts[12], layouts[9], layouts[3], layouts[7]
-}}
+ tags = {
+   names  = { "[main]", "[workspace]","[web]", "[shell]", "[uni]", "[mail]", "[skype]"},
+   layout = { layouts[2], layouts[2], layouts[2], layouts[5], layouts[6],
+              layouts[12], layouts[7]
+ }}
 
 for s = 1, screen.count() do
     -- Each screen has its own tag table.
-    tags[s] = awful.tag(tags.names, s, layouts[1])
+    tags[s] = awful.tag(tags.names, s, tags.layout)
 end
 -- }}}
 
@@ -113,9 +115,25 @@ mylauncher = awful.widget.launcher({ image = beautiful.awesome_icon,
 menubar.utils.terminal = terminal -- Set the terminal for applications that require it
 -- }}}
 
--- {{{ Wibox
+
+-- {{{ WIDGETS }}}
+
 -- Create a textclock widget
 mytextclock = awful.widget.textclock()
+
+-- {{{ CPU
+
+cpuwidget = wibox.widget.textbox()
+cpuicon = wibox.widget.imagebox()
+cpuicon:set_image(beautiful.widget_cpu)
+
+vicious.register(cpuwidget, vicious.widgets.cpu,
+ "<span color='" .. "#999999" .. "'>$1%</span>", 13)
+-- }}}
+
+
+-- pacman widget
+
 
 -- Create a wibox for each screen and add it
 mywibox = {}
@@ -194,11 +212,14 @@ for s = 1, screen.count() do
     -- Widgets that are aligned to the right
     local right_layout = wibox.layout.fixed.horizontal()
     if s == 1 then right_layout:add(wibox.widget.systray()) end
+    
+    right_layout:add(cpuwidget)
     right_layout:add(mytextclock)
     right_layout:add(mylayoutbox[s])
 
     -- Now bring it all together (with the tasklist in the middle)
     local layout = wibox.layout.align.horizontal()
+
     layout:set_left(left_layout)
     layout:set_middle(mytasklist[s])
     layout:set_right(right_layout)
