@@ -141,11 +141,14 @@ vicious.register(pacwidget, vicious.widgets.pkg,
                     local io = { popen = io.popen }
                     local s = io.popen("pacman -Qu")
                     local str = ''
-
                     for line in s:lines() do
                         str = str .. line .. "\n"
                     end
+                    if str == "" then
+                    pacwidget_t:set_text("Leider keine Updates!")
+                    else
                     pacwidget_t:set_text(str)
+                  end
                     s:close()
                     return "UPDATES: " .. args[1]
                 end, 1800, "Arch")
