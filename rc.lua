@@ -133,7 +133,24 @@ vicious.register(cpuwidget, vicious.widgets.cpu,
 
 
 -- pacman widget
+pacwidget =  wibox.widget.textbox()
+pacwidget_t = awful.tooltip({ objects = { pacwidget},})
 
+vicious.register(pacwidget, vicious.widgets.pkg,
+                function(widget,args)
+                    local io = { popen = io.popen }
+                    local s = io.popen("pacman -Qu")
+                    local str = ''
+
+                    for line in s:lines() do
+                        str = str .. line .. "\n"
+                    end
+                    pacwidget_t:set_text(str)
+                    s:close()
+                    return "UPDATES: " .. args[1]
+                end, 1800, "Arch")
+
+                --'1800' means check every 30 minutes
 
 -- Create a wibox for each screen and add it
 mywibox = {}
@@ -213,6 +230,7 @@ for s = 1, screen.count() do
     local right_layout = wibox.layout.fixed.horizontal()
     if s == 1 then right_layout:add(wibox.widget.systray()) end
     
+    right_layout:add(pacwidget)
     right_layout:add(cpuwidget)
     right_layout:add(mytextclock)
     right_layout:add(mylayoutbox[s])
