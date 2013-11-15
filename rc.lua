@@ -13,6 +13,8 @@ local vicious = require("vicious")
 local naughty = require("naughty")
 local menubar = require("menubar")
 
+require("textvolume")
+
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
 -- another config (This code will only ever execute for the fallback config)
@@ -169,13 +171,13 @@ vicious.register(pacwidget, vicious.widgets.pkg,
                     s:close()
                     return "UPDATES: " .. args[1] .. " "
                 end, 1800, "Arch")
-
+                --'1800' means check every 30 minutes
 
 
 pacwidget:buttons(-- awful.util.table.join(
-                    awful.button({ }, 1,function () awful.util.spawn_with_shell("gksu pacupg",1) end)
+                    awful.button({ }, 1,function () awful.util.spawn_with_shell("pacman -Suyy",1) end)
                   )--)
-                --'1800' means check every 30 minutes
+
 
 -- }}}
 
@@ -309,7 +311,7 @@ for s = 1, screen.count() do
     local right_layout = wibox.layout.fixed.horizontal()
     if s == 1 then right_layout:add(wibox.widget.systray()) end
     
-    right_layout:add(volumecfgwidget)
+    right_layout:add(volume_widget)
     -- template for the lazy :)
     -- right_layout:add()
     right_layout:add(batwidget)
