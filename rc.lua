@@ -182,8 +182,9 @@ pacwidget:buttons(-- awful.util.table.join(
 -- }}}
 
 -- Volume widget
-
+--[[
 volumecfg = {}
+
 volumecfg.cardid  = 0
 volumecfg.channel = "Master"
 volumecfgwidget = wibox.widget.textbox()
@@ -198,9 +199,9 @@ volumecfg.mixercommand = function (command)
        fd:close()
 
        local volume = string.match(status, "(%d?%d?%d)%%")
-       volume = string.format("% 3d", volume)
-       status = string.match(status, "%[(o[^%]]*)%]")
-       if string.find(status, "on", 1, true) then
+       volume = string.format("% 3d", volume) ]]
+--     status = string.match(status, "%[(o[^%]]*)%]") 
+--[[       if string.find(status, "on", 1, true) then
                volume = volume .. "%"
        else
                volume = volume .. "M"
@@ -210,6 +211,7 @@ end
 volumecfg.update = function ()
        volumecfg.mixercommand(" sget " .. volumecfg.channel)
 end
+
 volumecfg.up = function ()
        volumecfg.mixercommand(" sset " .. volumecfg.channel .. " 1%+")
 end
@@ -221,10 +223,12 @@ volumecfg.toggle = function ()
 end
 volumecfgwidget:buttons({
        awful.button({ }, 4, function () volumecfg.up() end),
-       awful.button({ }, 5, function () volumecfg.down() end),
+       awful.button({ }, 5, function () volumecfg.down() end), 
        awful.button({ }, 1, function () volumecfg.toggle() end)
 })
 volumecfg.update()
+--]]
+
 
 -- {{{ Separator
 
@@ -311,7 +315,7 @@ for s = 1, screen.count() do
     local right_layout = wibox.layout.fixed.horizontal()
     if s == 1 then right_layout:add(wibox.widget.systray()) end
     
-    right_layout:add(volume_widget)
+    -- right_layout:add(volume_widget)
     -- template for the lazy :)
     -- right_layout:add()
     right_layout:add(batwidget)
