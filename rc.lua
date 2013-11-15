@@ -127,12 +127,12 @@ mytextclock = awful.widget.textclock()
 
 -- {{{ CPU
 
-cpuwidget = wibox.widget.textbox()
-cpuicon = wibox.widget.imagebox()
-cpuicon:set_image(beautiful.widget_cpu)
+-- cpuwidget = wibox.widget.textbox()
+-- cpuicon = wibox.widget.imagebox()
+-- cpuicon:set_image(beautiful.widget_cpu)
 
-vicious.register(cpuwidget, vicious.widgets.cpu,
- "<span color='" .. "#999999" .. "'>CPU:$1% $2%</span>", 5)
+-- vicious.register(cpuwidget, vicious.widgets.cpu,
+-- "<span color='" .. "#999999" .. "'>CPU:$1% $2%</span>", 5)]]
 
 -- }}}
 
@@ -273,8 +273,8 @@ for s = 1, screen.count() do
     right_layout:add(separator)
     right_layout:add(pacwidget)
     right_layout:add(separator)
-    right_layout:add(cpuwidget)
-    right_layout:add(separator)
+    -- right_layout:add(cpuwidget)
+    --right_layout:add(separator)
     right_layout:add(mytextclock)
     right_layout:add(mylayoutbox[s])
 
